@@ -16,7 +16,7 @@ sudo mkdir -p /data/web_static/releases/test/
 sudo touch /data/web_static/releases/test/index.html
 
 #test html page 
-echo "Server seems to be working" | sudo tee /data/web_static/releases/test/index.html
+sudo echo "Server seems to be working" | sudo tee /data/web_static/releases/test/index.html
 
 #removes symbolic link if exists
 rm -f /data/web_static/current
