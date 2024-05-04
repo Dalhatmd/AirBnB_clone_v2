@@ -27,10 +27,9 @@ ln -s /data/web_static/releases/test/ /data/web_static/current
 # Grants ownershio to ubuntu user and group
 sudo chown -R ubuntu:ubuntu /data/
 
-config='/etc/nginx/sites-enabled/default/'
 
 #serves content of current to hbnb_static
 
-sudo sed -i '/location \/hbnb_static\//,/}/c\location /hbnb_static/ { alias /data/web_static/current/; index index.html; }' $config
+sudo sed -i '/listen 80 default_server/a location /hbnb_static { alias /data/web_static/current/;}' /etc/nginx/sites-enabled/default
 
 sudo service nginx restart
