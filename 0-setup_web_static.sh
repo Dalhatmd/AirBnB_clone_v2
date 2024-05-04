@@ -7,10 +7,12 @@ sudo apt-get update
 sudo apt-get install -y nginx
 
 #creates directories
-sudo mkdir -P /data/web_static/releases/test/
 
-sudo mkdir -P /data/web_static/shared/
-
+sudo mkdir -p /data/
+sudo mkdir -p /data/web_static/
+sudo mkdir -p /data/web_static/releases/
+sudo mkdir -p /data/web_static/shared/
+sudo mkdir -p /data/web_static/releases/test/
 sudo touch /data/web_static/releases/test/index.html
 
 #test html page 
@@ -29,4 +31,6 @@ config='/etc/nginx/sites-enabled/default/'
 
 #serves content of current to hbnb_static
 
-sudo sed -i '/location \/hbnb_static\//,/}/c\location /hbnb_static/ { alias /data/web_static/current/; index index.html; }' "$config"
+sudo sed -i '/location \/hbnb_static\//,/}/c\location /hbnb_static/ { alias /data/web_static/current/; index index.html; }' $config
+
+sudo service nginx restart
