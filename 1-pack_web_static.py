@@ -21,4 +21,3 @@ def do_pack():
     except Exception as e:
         print(f"An error occurred while creating the archive: {e}")
         return None
-
