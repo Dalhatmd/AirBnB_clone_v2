@@ -61,7 +61,6 @@ def do_deploy(archive_path):
             conn.run(f"sudo ln -s {target_dir} /data/web_static/current")
 
         except Exception as e:
-            print(f"Error during deployment on {server['host']}: {e}")
             successful = False
 
     return successful
