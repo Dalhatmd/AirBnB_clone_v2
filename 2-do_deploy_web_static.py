@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-""" Compresses and deploys web static"""                               from fabric.api import *
+"""Compresses and deploys web static"""
+from fabric.api import *
 from os import path
 
 
@@ -18,11 +19,12 @@ def do_deploy(archive_path):
     try:
         put(archive_path, '/tmp/')
 
-        run('mkdir -p /data/web_static/releases/web_static_{}/
-            .format(timestamp'))
+        run('mkdir -p /data/web_static/releases/web_static_{}'
+            .format(timestamp))
 
-        run('tar -xzf /tmp/web_static_{}.tgz -C
-            /data/web_static/releases/web_static_{}'/                              .format(timestamp, timestamp))
+        run('tar -xzf /tmp/web_static_{}.tgz -C\
+            /data/web_static/releases/web_static_{}'
+            .format(timestamp, timestamp))
 
         run('rm /tmp/web_static_{}.tgz'.format(timestamp))
 
@@ -32,8 +34,7 @@ def do_deploy(archive_path):
         run('rm -rf /data/web_static/releases/web_static_{}/web_static'\
                 .format(timestamp))
         run('rm -rf /data/web_static/current')
-        run('ln -s /data/web_static/releases/web_static_{}/
-            /data/web_static/current'.format(timestamp))
+        run('ln -s /data/web_static/releases/web_static_{} /data/web_static/current'.format(timestamp))
 
     except Exception as e:
         return False
