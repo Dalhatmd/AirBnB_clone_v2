@@ -5,7 +5,7 @@ from os import path
 
 
 env.user = 'ubuntu'
-env.hosts = ['100.25.19.204', '54.157.159.85']
+env.hosts = ['18.209.224.247', '100.26.252.22']
 env.key_filename = '~/.ssh/id_rsa'
 
 
@@ -19,22 +19,22 @@ def do_deploy(archive_path):
     try:
         put(archive_path, '/tmp/')
 
-        run('mkdir -p /data/web_static/releases/web_static_{}'
+        run('sudo mkdir -p /data/web_static/releases/web_static_{}'
             .format(timestamp))
 
-        run('tar -xzf /tmp/web_static_{}.tgz -C\
+        run('sudo tar -xzf /tmp/web_static_{}.tgz -C\
             /data/web_static/releases/web_static_{}'
             .format(timestamp, timestamp))
 
-        run('rm /tmp/web_static_{}.tgz'.format(timestamp))
+        run('sudo rm /tmp/web_static_{}.tgz'.format(timestamp))
 
-        run('mv /data/web_static/releases/web_static_{}/web_static/*               /data/web_static/releases/web_static_{}/'
+        run('sudo mv /data/web_static/releases/web_static_{}/web_static/*               /data/web_static/releases/web_static_{}/'
             .format(timestamp, timestamp))
 
-        run('rm -rf /data/web_static/releases/web_static_{}/web_static'\
+        run('sudo rm -rf /data/web_static/releases/web_static_{}/web_static'\
                 .format(timestamp))
-        run('rm -rf /data/web_static/current')
-        run('ln -s /data/web_static/releases/web_static_{} /data/web_static/current'.format(timestamp))
+        run('sudo rm -rf /data/web_static/current')
+        run('sudo ln -s /data/web_static/releases/web_static_{} /data/web_static/current'.format(timestamp))
 
     except Exception as e:
         return False
