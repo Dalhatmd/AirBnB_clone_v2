@@ -1,66 +1,47 @@
 #!/usr/bin/python3
-""" Deploys to servers """
+""" Compresses and deploys web static"""
 from fabric.api import *
-import os
+from os import path
 
 
-WEB_SERVERS = [
-        {
-            "host": "100.25.19.204",
-            "user": "ubuntu",
-            "key_filename": "~/.ssh/id_rsa",
-            },
-        {
-            "host": "54.157.159.85",
-            "user": "ubuntu",
-            "key_filename": "~/.ssh/id_rsa",
-            },
-        ]
+env.user = 'ubuntu'
+env.hosts = ['100.25.19.204', '54.157.159.85']
+env.key_filename = '~/.ssh/id_rsa'
 
 
-@task
-def do_deploy(archive_path):
-    """Deploys archive to multiple servers"""
+def deploy(archive_path):
+    """ Deploys archive_path """
 
-    if not os.path.exists(archive_path):
+    if not path.exists(archive_path):
         return False
 
-    archive_filename = os.path.basename(archive_path)
-    if not archive_filename.endswith(".tgz"):
+    timestamp = archive_path[-18:-4]
+    try:
+        put(archive_path, '/tmp/')
+# create directory
+        run('sudo mkdir -P /data/web_static/releases/\
+                web_static_%s.tgz/' % timestamp)
+# uncompress
+        run('sudo tar -xzf /tmp/web_static_%s.tgz -C /data/webstatic/releases\
+                /web_static_%s' % timestamp % timestamp)
+# delete tar file
+        run('sudo rm /tmp/web_static_%s.tgz' % timestamp)
+
+# move files into web_static
+        run('sudo mv /data/web_static/releases/web_static_%s/web_static/*\
+            /data_web_static/releases/web_static_%s/' % timestamp % timestamp)
+
+        # delete web_statc dir
+        run('sudo rm -rf /data/web_static/releases/web_static_%s/\
+                web_static' % timestamp)
+
+        # delete existing sym link
+        run('sudo rm /tmp/web_static/current')
+
+        # create new symbolic link
+        run('sudo ln -s /data/web_static/releases/\
+web_static_{}/ /data/web_static/current'.format(timestamp))
+
+    except Exception as e:
         return False
-
-    base_name = archive_filename[:-4]
-
-    target_dir = f"/data/web_static/releases/{base_name}"
-
-    successful = True
-    for server in WEB_SERVERS:
-        try:
-            conn = Connection(
-                host=server["host"],
-                user=server["user"],
-                connect_kwargs={
-                    "key_filename": server["key_filename"],
-                },
-            )
-
-            conn.put(archive_path, "/tmp/")
-
-            conn.run(f"sudo mkdir -p {target_dir}")
-
-            conn.run(f"sudo tar -xzf /tmp/{archive_filename} -C {target_dir}")
-
-            conn.run(f"sudo rm /tmp/{archive_filename}")
-
-            conn.run(f"sudo mv {target_dir}/web_static/_{timestamp}* {target_dir}_{timestamp}/")
-
-            conn.run(f"sudo rm -rf {target_dir}/web_static/releases/web_static_{timestamp}/web_static")
-
-            conn.run(f"sudo rm -rf /data/web_static/current")
-
-            conn.run(f"sudo ln -s {target_dir}_{timestamp} /data/web_static/current")
-
-        except Exception as e:
-            successful = False
-
-    return successful
+    return True
