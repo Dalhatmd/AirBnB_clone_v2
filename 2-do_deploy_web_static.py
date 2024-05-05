@@ -10,8 +10,7 @@ env.key_filename = '~/.ssh/id_rsa'
 
 
 def deploy(archive_path):
-    """Deploys archive_path
-    """
+    """Deploys archive to multiple servers"""
 
     if not path.exists(archive_path):
         return False
