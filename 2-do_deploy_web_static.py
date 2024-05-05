@@ -52,13 +52,13 @@ def do_deploy(c, archive_path):
 
             conn.run(f"sudo rm /tmp/{archive_filename}")
 
-            conn.run(f"sudo mv {target_dir}/web_static/* {target_dir}/")
+            conn.run(f"sudo mv {target_dir}/web_static/_{timestamp}* {target_dir}_{timestamp}/")
 
-            conn.run(f"sudo rm -rf {target_dir}/web_static")
+            conn.run(f"sudo rm -rf {target_dir}/web_static/releases/web_static_{timestamp}/web_static")
 
             conn.run(f"sudo rm -rf /data/web_static/current")
 
-            conn.run(f"sudo ln -s {target_dir} /data/web_static/current")
+            conn.run(f"sudo ln -s {target_dir}_{timestamp} /data/web_static/current")
 
         except Exception as e:
             successful = False
