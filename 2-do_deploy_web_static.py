@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """ Deploys to servers """
-from fabric import task, Connection
+from fabric.api import *
 import os
 
 
@@ -19,8 +19,8 @@ WEB_SERVERS = [
 
 
 @task
-def do_deploy(c, archive_path):
-    """Deploys an archive to multiple servers"""
+def do_deploy(archive_path):
+    """Deploys archive to multiple servers"""
 
     if not os.path.exists(archive_path):
         return False
