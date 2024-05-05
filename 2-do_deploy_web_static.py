@@ -18,29 +18,25 @@ def deploy(archive_path):
     timestamp = archive_path[-18:-4]
     try:
         put(archive_path, '/tmp/')
-# create directory
-        run('sudo mkdir -P /data/web_static/releases/\
-                web_static_%s.tgz/' % timestamp)
-# uncompress
-        run('sudo tar -xzf /tmp/web_static_%s.tgz -C /data/webstatic/releases\
-                /web_static_%s' % timestamp % timestamp)
-# delete tar file
-        run('sudo rm /tmp/web_static_%s.tgz' % timestamp)
 
-# move files into web_static
-        run('sudo mv /data/web_static/releases/web_static_%s/web_static/*\
-            /data_web_static/releases/web_static_%s/' % timestamp % timestamp)
+        run('mkdir -p /data/web_static/releases/web_static_{}/
+            .format(timestamp'))
 
-        # delete web_statc dir
-        run('sudo rm -rf /data/web_static/releases/web_static_%s/\
-                web_static' % timestamp)
+        run('tar -xzf /tmp/web_static_{}.tgz -C
+            /data/web_static/releases/web_static_{}'/
+            .format(timestamp, timestamp))
 
-        # delete existing sym link
-        run('sudo rm /tmp/web_static/current')
+        run('rm /tmp/web_static_{}.tgz'.format(timestamp))
 
-        # create new symbolic link
-        run('sudo ln -s /data/web_static/releases/\
-web_static_{}/ /data/web_static/current'.format(timestamp))
+        run('mv /data/web_static/releases/web_static_{}/web_static/*
+            /data/web_static/releases/web_static_{}/'
+            .format(timestamp, timestamp))
+
+        run('rm -rf /data/web_static/releases/web_static_{}/web_static'\
+                .format(timestamp))
+        run('rm -rf /data/web_static/current')
+        run('ln -s /data/web_static/releases/web_static_{}/
+            /data/web_static/current'.format(timestamp))
 
     except Exception as e:
         return False
