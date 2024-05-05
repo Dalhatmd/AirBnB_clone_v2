@@ -8,7 +8,7 @@ env.hosts = ['100.25.19.204', '54.157.159.85']
 env.key_filename = '~/.ssh/id_rsa'
 
 
-def deploy(archive_path):
+def do_deploy(archive_path):
     """Deploys archive to multiple servers"""
 
     if not path.exists(archive_path):
