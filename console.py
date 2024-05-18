@@ -10,6 +10,9 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
+import os
+import uuid
+from datetime import datetime
 
 
 class HBNBCommand(cmd.Cmd):
@@ -120,7 +123,7 @@ class HBNBCommand(cmd.Cmd):
             print("** class name missing **")
             return
         class_name, *params = args.split()
-        print(class_name)
+#        print(class_name)
         if class_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
@@ -143,14 +146,25 @@ class HBNBCommand(cmd.Cmd):
                 except ValueError:
                     continue
             object_kwargs[key] = value
-        new_instance = HBNBCommand.classes[class_name]()
-        for key, value in object_kwargs.items():
-            if key not in ignored:
-                setattr(new_instance, key, value)
-#        print(new_instance)
-        storage.save()
-        print(new_instance.id)
-        storage.save()
+        if os.getenv('HBNB_TYPE_STORAGE') == 'db':
+            if not hasattr(object_kwargs, 'id'):
+                object_kwargs['id'] = str(uuid.uuid4())
+            if not hasattr(object_kwargs, 'created_at'):
+                object_kwargs['created_at'] = str(datetime.now())
+            if not hasattr(object_kwargs, 'updated_at'):
+                object_kwargs['updated_at'] = str(datetime.now())
+            new_instance = HBNBCommand.classes[class_name](**object_kwargs)
+
+            new_instance.save()
+            print(new_instance.id)
+        else:
+            new_instance = HBNBCommand.classes[class_name]()
+            for key, value in object_kwargs.items():
+                if key not in ignored:
+                    setattr(new_instance, key, value)
+#        storage.save()
+            print(new_instance.id)
+            new_instance.save()
 
     def help_create(self):
         """ Help information for the create method """

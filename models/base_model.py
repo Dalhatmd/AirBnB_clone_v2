@@ -4,9 +4,14 @@ import uuid
 from datetime import datetime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, DateTime
+from os import getenv
 
+time_fmt = "%Y-%m-%d %H:%M:%S.%f"
+if getenv('HBNB_TYPE_STORAGE') == 'db':
+	Base = declarative_base()
+else:
+	Base = object
 
-Base = declarative_base()
 class BaseModel:
     """A base class for all hbnb models"""
     id = Column(Integer, primary_key=True, nullable=False)
@@ -14,23 +19,18 @@ class BaseModel:
     updated_at = Column(DateTime, default=datetime.utcnow(), nullable=False)
 
     def __init__(self, *args, **kwargs):
-        """Instatntiates a new model"""
-        if not kwargs:
-            from models import storage
-            self.id = str(uuid.uuid4())
-            self.created_at = datetime.now()
-            self.updated_at = datetime.now()
-#            storage.new(self)
-        else:
-            kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
-                                                     '%Y-%m-%dT%H:%M:%S.%f')
-            kwargs['created_at'] = datetime.strptime(kwargs['created_at'],
-                                                     '%Y-%m-%dT%H:%M:%S.%f')
-            for key, value in kwargs.items():
-                if key in HBNBCommand[key]:
-                    setattr(self, key, value)
-            kwargs.pop('__class__', None)
-            self.__dict__.update(kwargs)
+        """Initialization of the base model"""
+        self.id = str(uuid.uuid4())
+        self.created_at = datetime.now()
+        self.updated_at = self.created_at
+        for key, value in kwargs.items():
+            if key == '__class__':
+                continue
+            setattr(self, key, value)
+            if type(self.created_at) is str:
+                self.created_at = datetime.strptime(self.created_at, time_fmt)
+            if type(self.updated_at) is str:
+                self.updated_at = datetime.strptime(self.updated_at, time_fmt)
 
     def __str__(self):
         """Returns a string representation of the instance"""
@@ -47,11 +47,19 @@ class BaseModel:
     def to_dict(self):
         """Convert instance into dict format"""
         dictionary = {}
-        dictionary.update(self.__dict__)
-        dictionary.update({'__class__':
-                          (str(type(self)).split('.')[-1]).split('\'')[0]})
-        dictionary['created_at'] = self.created_at.isoformat()
-        dictionary['updated_at'] = self.updated_at.isoformat()
-        if '_sa_instance_state' in dictionary.keys():
-            del dictionary['_sa_instance_state']
+        for key in dir(self):
+            if not key.startswith('_'):
+                value = getattr(self, key)
+                if not callable(value):
+                    dictionary[key] = value
+        dictionary['__class__'] = self.__class__.__name__
+        if 'created_at' in dictionary:
+            dictionary['created_at'] = dictionary['created_at'].isoformat()
+        if 'updated_at' in dictionary:
+            dictionary['updated_at'] = dictionary['updated_at'].isoformat()
         return dictionary
+
+
+    def delete(self):
+        """ Deletes an instance by calling the delete method """
+        model.storage.delete(self)
